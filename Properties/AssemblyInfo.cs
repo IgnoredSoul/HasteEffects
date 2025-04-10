@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+﻿using MelonLoader;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using MelonLoader;
 
 [assembly: AssemblyTitle("HasteEffects")]
 [assembly: MelonInfo(typeof(StatsRandomizer.Main), "HasteEffects", "1.0.0", "IGNOREDSOUL")]

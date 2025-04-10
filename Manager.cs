@@ -1,4 +1,6 @@
-﻿namespace StatsRandomizer;
+﻿using UnityEngine.SceneManagement;
+
+namespace StatsRandomizer;
 
 // This entire class can be better but this is what my sleep deprived brain could manage...
 // Still this took me like an hour ;-;
@@ -87,6 +89,22 @@ internal class Manager
         }
         //MelonLogger.Msg($"{stat}'s mult is now: {multi}x");
     }
+
+    /// <summary>
+    /// Ruturns true if the player is in a defined scene.
+    /// </summary>
+    // This needs to be expanded at some point.
+    internal static bool IsRun
+    {
+        get
+        {
+            Scene curScn = SceneManager.GetActiveScene();
+            if (curScn.name.ToLower().Contains("challenge") ||
+                (curScn.buildIndex == 7 || curScn.buildIndex == 13))
+                return true;
+            return false;
+        }
+    }
 }
 
 // Kind of want to addd colors depending if the given effect is worth, like pickup range would be a blue color
@@ -126,3 +144,31 @@ public enum Stat
     Boost,          // Think this only applied to your power
     FastFall        // Goated sometimes
 }
+
+/* 
+    Can add these if I want more effects;
+
+    public PlayerStat maxHealth;                    // Could be silly and wacky
+    public PlayerStat runSpeed;                     // Added
+    public PlayerStat airSpeed;                     // Added
+    public PlayerStat turnSpeed;                    // Added
+    public PlayerStat drag;                         // Added
+    public PlayerStat gravity;                      // Added
+    public PlayerStat fastFallSpeed;                // Added
+    public PlayerStat fastFallLerp;                 // Not 100% sure what this does
+    public PlayerStat lives;                        // Honeslty I wouldn't do this unless it's like "harcore" and have only one life throughout the entire run
+    public PlayerStat dashes;                       // I have no idea what this is
+    public PlayerStat boost;                        // Added
+    public PlayerStat luck;                         // Kind of useless I think?
+    public PlayerStat startWithEnergyPercentage;    // Also kind of useless? Think this only used for setting the energy percentage after a previous level
+    public PlayerStat maxEnergy;                    // Added
+    public PlayerStat itemPriceMultiplier;          // Useless since modified stats do not cross between levels
+    public PlayerStat itemRarity;                   // ^
+    public PlayerStat sparkMultiplier;              // Could be interesting but if it's like 0.8x then that could fuck with people.
+    public PlayerStat startingResource;             // Idk what this does
+    public PlayerStat energyGain;                   // Would fuck over some people or just outright be over powered depending on what ability
+    public PlayerStat damageMultiplier;             // Could be interesting, if it's like 0.25x you could literally just crash into everything. Think this applies to the blue shit
+    public PlayerStat sparkPickupRange;             // Added
+    public PlayerStat extraLevelSparks;             // Don't think this will work since it gets applied after world gen
+    public PlayerStat extraLevelDifficulty;         // Also don't think this works. ^
+*/ 

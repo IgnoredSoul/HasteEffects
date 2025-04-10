@@ -4,26 +4,25 @@ using System.Collections.Generic;
 
 // Think I'll call it "HasteEffects" instead of fucking StAtS rAnDoMiZeR :3c
 namespace StatsRandomizer;
+
 public class Main : MelonMod
 {
-    public override void OnInitializeMelon() => new Config();
-
-    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+    public HarmonyLib.Harmony harmony;
+    public override void OnInitializeMelon()
     {
-        // Log scene name & index
-        //MelonLogger.Warning($"Loading {sceneName} ({buildIndex})");
+        new Config();
 
-        // Check if the scene is of running or a challange, can add more or just flat out do it in every scene.
-        if (sceneName.ToLower().Contains("challenge") || (buildIndex == 7 || buildIndex == 13)) { Randomize(); }
+        harmony = new HarmonyLib.Harmony("com.github.ignoredsoul");
+        harmony.PatchAll(typeof(Patching));
     }
 
-    private List<UIStats> stats = new List<UIStats>();
+    private static List<UIStats> stats = new List<UIStats>();
 
     // I was thinking about making weights to each effect so runspeed has more of a change to be selected than like airspeed.
     // But I want it to be random, fully random at the same time. So it's just a 25% chance to not be selected.
     // Which I don't think it's actually 25% to NOT be selected, 'cause there's times where I've only gotten once effect.
     // idk I was sleep deprived making this shit
-    private void Randomize()
+    internal static void Randomize()
     {
         /// Old code that I was gonna do, basically just chooses a random enum from the list and that's the stat it changes-
         /// but opped out 'cause changing multiple effects is better
@@ -38,9 +37,9 @@ public class Main : MelonMod
 
         for (int i = 0; i < 5 && availableStats.Any(); i++)
         {
-            Stat stat = availableStats[NumberUtils.random.Next(availableStats.Count)];
+            Stat stat = availableStats[NumberUtils.random.Next(0, availableStats.Count)];
             availableStats.Remove(stat);
-            if (NumberUtils.random.NextDouble() > (i * 0.25)) selectedStats.Add(stat);
+            if (NumberUtils.NextD() > (i * 0.25)) selectedStats.Add(stat);
         }
 
         stats.ForEach(stat => stat.Destroy());
@@ -56,4 +55,14 @@ public class Main : MelonMod
         });
         //MelonLogger.Warning($"Randomized {selectedStats.Count} stats");
     }
+}
+
+[HarmonyLib.HarmonyPatch]
+public class Patching
+{
+    // This get's called even if the player starts the level for a first time.
+    // Allows us to reroll effects after a player loses a life in a run.
+    [HarmonyLib.HarmonyPatch(typeof(PlayerCharacter), "RestartPlayer_Launch", new System.Type[] { typeof(UnityEngine.Transform), typeof(float) })]
+    [HarmonyLib.HarmonyPostfix]
+    private static void OnRestartPlayer(UnityEngine.Transform spawnPoint, float minVel = 0f) { if (Manager.IsRun) Main.Randomize(); }
 }

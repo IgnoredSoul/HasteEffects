@@ -1,6 +1,7 @@
 ﻿using MelonLoader;
 
 namespace StatsRandomizer;
+
 internal class Config
 {
     private MelonPreferences_Category Category;
