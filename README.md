@@ -15,3 +15,7 @@ Just found out Haste uses the steam's workshop... I fucking hate myself.
 Update.... [this exist](https://steamcommunity.com/sharedfiles/filedetails/?id=3460597298)
 </br>
 Update update... [they have their own modding framework](https://github.com/ItzRock/IamTheCaptainNow/blob/main/Plugin.cs#L11)
+</br>
+There's literally a file called "Landfall.modding" in it's managed folder... ;-;
+</br>
+Welp, time to remake this mod using their fucking modding tool... God i fucking hate it here
