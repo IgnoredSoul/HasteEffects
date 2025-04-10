@@ -8,7 +8,6 @@ namespace HasteEffects;
 public class HastySetting
 {
     public string ModName { get; private set; }
-    public string ModDesc { get; private set; }
 
     static AccessTools.FieldRef<HasteSettingsHandler, List<Setting>> settingsRef = AccessTools.FieldRefAccess<HasteSettingsHandler, List<Setting>>("settings");
     static AccessTools.FieldRef<HasteSettingsHandler, ISettingsSaveLoad> settingsSaveLoadRef = AccessTools.FieldRefAccess<HasteSettingsHandler, ISettingsSaveLoad>("_settingsSaveLoad");

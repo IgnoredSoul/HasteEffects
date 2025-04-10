@@ -1,11 +1,8 @@
-﻿using System;
-using UnityEngine.SceneManagement;
-using static Mono.Security.X509.X520;
-
-namespace HasteEffects;
+﻿namespace HasteEffects;
 
 internal class Manager
 {
+    // These two need to be fucking re-done.
     internal static PlayerStat GetStat(Stat stat)
     {
         switch (stat)
@@ -90,22 +87,41 @@ internal class Manager
         //MelonLogger.Msg($"{stat}'s mult is now: {multi}x");
     }
 
-    /// <summary>
-    /// Ruturns true if the player is in a defined scene.
-    /// </summary>
     // This needs to be expanded at some point.
     internal static bool IsRun
     {
         get
         {
-            Scene curScn = SceneManager.GetActiveScene();
-            //MelonLoader.MelonLogger.Warning($"Loaded level: {curScn.name} ({curScn.buildIndex})");
-            if (curScn.name.ToLower().Contains("challenge") ||
-                (curScn.buildIndex == 7 || curScn.buildIndex == 13))
+            UnityEngine.SceneManagement.Scene curScn = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            UnityEngine.Debug.LogError($"Loaded level: {curScn.name} ({curScn.buildIndex})");
+            if ((curScn.name.ToLower().Contains("challenge") && Main.Values.ChallengeLevel_Apply.Value)
+                || (curScn.buildIndex == 27 && Main.Values.BossLevel_Apply.Value)
+                || curScn.buildIndex == 7)
                 return true;
             return false;
         }
     }
+
+
+    /*
+     * RunScene (7)
+     * Challenge_AgencyLasers (12)
+     * Challenge_AgencyCaptainChase (13)
+     * Challenge_AgencyCoinVault (14)
+     * Challenge_AgencyTrackingTriangulationSnake (15)
+     * Challenge_EyeOfSauron (16)
+     * Challenge_FallingIsland (17)
+     * Challenge_HeirPointsWayOutOfLavaWorld (18)
+     * Challenge_ForestBoss (19)
+     * Challenge_WraithRestoreTheWorld (20)
+     * Challenge_BigRing_Petter (20)
+     * Challenge_ConfusingWraithLookForCluesChallenge (22)
+     * Challenge_Ghost_Chase (23)
+     * Challenge_SageLearnToFlyChallenge (24)
+     * Challenge_DesertBoss (25)
+     * Challenge_SnakeBoss (26)
+     * EndBoss (27)
+    */
 }
 
 internal class UIStats
@@ -136,6 +152,10 @@ public class Values
     public Values()
     {
         HastySetting cfg = new($"<size=80%>{Main.NAME}", Main.GUID);
+
+        ChallengeLevel_Apply = new HastyBool(cfg, "Challenges", "Apply to challenege levels", false);
+        BossLevel_Apply = new HastyBool(cfg, "Boss", "Apply to the boss level", false);
+
         Gravity_Min = new HastyFloat(cfg, "Gravity", "min", 0f, 10f, 0.8f);
         Gravity_Max = new HastyFloat(cfg, "Gravity", "max", 0f, 10f, 2f);
 
@@ -148,11 +168,8 @@ public class Values
         AirSpeed_Min = new HastyFloat(cfg, "Air Speed", "min", 0f, 10f, 0.4f);
         AirSpeed_Max = new HastyFloat(cfg, "Air Speed", "max", 0f, 10f, 2f);
 
-        Drag_Min = new HastyFloat(cfg, "Drag", "min", 0f, 10f, 0.8f);
-        Drag_Max = new HastyFloat(cfg, "Drag", "max", 0f, 10f, 2f);
-
-        Luck_Min = new HastyFloat(cfg, "Luck", "min", 0f, 10f, 0.8f);
-        Luck_Max = new HastyFloat(cfg, "Luck", "max", 0f, 10f, 3f);
+        Drag_Min = new HastyFloat(cfg, "Drag", "min", 0f, 10f, 0.75f);
+        Drag_Max = new HastyFloat(cfg, "Drag", "max", 0f, 10f, 1.25f); // Honestly, fuck drag so much.
 
         MaxEnergy_Min = new HastyFloat(cfg, "Max Energy", "min", 0f, 10f, 0.8f);
         MaxEnergy_Max = new HastyFloat(cfg, "Max Energy", "max", 0f, 10f, 3f);
@@ -165,12 +182,17 @@ public class Values
 
         FastFall_Min = new HastyFloat(cfg, "Fast Fall", "min", 0f, 10f, 0.5f);
         FastFall_Max = new HastyFloat(cfg, "Fast Fall", "max", 0f, 10f, 3f);
+
+        SparkMulti_Min = new HastyFloat(cfg, "Spark Multiplier", "min", 0f, 10f, 0.95f);
+        SparkMulti_Max = new HastyFloat(cfg, "Spark Multiplier", "max", 0f, 10f, 5f);
     }
+
+    internal HastyBool ChallengeLevel_Apply;
+    internal HastyBool BossLevel_Apply;
 
     internal HastyFloat Gravity_Min;
     internal HastyFloat Gravity_Max;
     internal float Gravity => NumberUtils.Next(Gravity_Min.Value, Gravity_Max.Value);
-
 
     internal HastyFloat RunSpeed_Min;
     internal HastyFloat RunSpeed_Max;
@@ -188,10 +210,6 @@ public class Values
     internal HastyFloat Drag_Max;
     internal float Drag => NumberUtils.Next(Drag_Min.Value, Drag_Max.Value);
 
-    internal HastyFloat Luck_Min;
-    internal HastyFloat Luck_Max;
-    internal float Luck => NumberUtils.Next(Luck_Min.Value, Luck_Max.Value);
-
     internal HastyFloat MaxEnergy_Min;
     internal HastyFloat MaxEnergy_Max;
     internal float MaxEnergy => NumberUtils.Next(MaxEnergy_Min.Value, MaxEnergy_Max.Value);
@@ -207,6 +225,10 @@ public class Values
     internal HastyFloat FastFall_Min;
     internal HastyFloat FastFall_Max;
     internal float FastFall => NumberUtils.Next(FastFall_Min.Value, FastFall_Max.Value);
+
+    internal HastyFloat SparkMulti_Min;
+    internal HastyFloat SparkMulti_Max;
+    internal float SparkMulti => NumberUtils.Next(SparkMulti_Min.Value, SparkMulti_Max.Value);
 }
 
 internal static class NumberUtils
@@ -256,33 +278,34 @@ public enum Stat
     MaxEnergy,      // Not 100x usefull but can save your ass
     PickupRange,    // Goated
     Boost,          // Think this only applied to your power
-    FastFall        // Goated sometimes
+    FastFall,       // Goated sometimes
+    SparkMulti      // Free moneyyyy
 }
 
 /* 
     Can add these if I want more effects;
 
     public PlayerStat maxHealth;                    // Could be silly and wacky
-    public PlayerStat runSpeed;                     // Added
-    public PlayerStat airSpeed;                     // Added
-    public PlayerStat turnSpeed;                    // Added
-    public PlayerStat drag;                         // Added
-    public PlayerStat gravity;                      // Added
-    public PlayerStat fastFallSpeed;                // Added
+    public PlayerStat runSpeed;                     // ZOOMIES ON THE GROUND
+    public PlayerStat airSpeed;                     // ZOOMIES IN THE AIR
+    public PlayerStat turnSpeed;                    // Just makes it easier to avoid shit
+    public PlayerStat drag;                         // Fuck drag, if it's more than 1.5x then you're fucked, good luck.
+    public PlayerStat gravity;                      // Can be good but really GG go next
+    public PlayerStat fastFallSpeed;                // Pretty poggers ngl
     public PlayerStat fastFallLerp;                 // Not 100% sure what this does
     public PlayerStat lives;                        // Honeslty I wouldn't do this unless it's like "harcore" and have only one life throughout the entire run
     public PlayerStat dashes;                       // I have no idea what this is
-    public PlayerStat boost;                        // Added
+    public PlayerStat boost;                        // Can be cool
     public PlayerStat luck;                         // Kind of useless I think?
     public PlayerStat startWithEnergyPercentage;    // Also kind of useless? Think this only used for setting the energy percentage after a previous level
-    public PlayerStat maxEnergy;                    // Added
+    public PlayerStat maxEnergy;                    // Kinda cool
     public PlayerStat itemPriceMultiplier;          // Useless since modified stats do not cross between levels
     public PlayerStat itemRarity;                   // ^
     public PlayerStat sparkMultiplier;              // Could be interesting but if it's like 0.8x then that could fuck with people.
     public PlayerStat startingResource;             // Idk what this does
     public PlayerStat energyGain;                   // Would fuck over some people or just outright be over powered depending on what ability
     public PlayerStat damageMultiplier;             // Could be interesting, if it's like 0.25x you could literally just crash into everything. Think this applies to the blue shit
-    public PlayerStat sparkPickupRange;             // Added
+    public PlayerStat sparkPickupRange;             // Yeah, cool ig
     public PlayerStat extraLevelSparks;             // Don't think this will work since it gets applied after world gen
     public PlayerStat extraLevelDifficulty;         // Also don't think this works. ^
 */ 

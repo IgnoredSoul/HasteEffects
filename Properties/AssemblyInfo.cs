@@ -1,9 +1,7 @@
-﻿using MelonLoader;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("HasteEffects")]
-[assembly: MelonInfo(typeof(StatsRandomizer.Main), "HasteEffects", "1.0.0", "IGNOREDSOUL")]
 [assembly: AssemblyDescription("A simple mod for Haste developed by Landfall")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("com.github.ignoredsoul")]

@@ -1,8 +1,6 @@
-﻿using Landfall.Modding;
+﻿namespace HasteEffects;
 
-namespace HasteEffects;
-
-[LandfallPlugin]
+[Landfall.Modding.LandfallPlugin]
 public class Main
 {
     private static HarmonyLib.Harmony harmony;
@@ -16,7 +14,7 @@ public class Main
     }
 
     private static List<UIStats> stats = new List<UIStats>();
-
+      
     // I was thinking about making weights to each effect so runspeed has more of a change to be selected than like airspeed.
     // But I want it to be random, fully random at the same time. So it's just a 25% chance to not be selected.
     // Which I don't think it's actually 25% to NOT be selected, 'cause there's times where I've only gotten one effect.
@@ -52,7 +50,7 @@ public class Main
         {
             Manager.RandomizeStat(stat);
             UIStats newStat = new(
-                stat.ToString() + " / " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x",
+                stat.ToString() + " ~ " + Manager.GetStat(stat).multiplier.ToString("0.0") + "x",
                 (stats.Count + 1)
             );
             stats.Add(newStat);
@@ -73,7 +71,15 @@ public class Patching
     // WHAT THE FUCK
     [HarmonyLib.HarmonyPatch(typeof(PlayerCharacter), "RestartPlayer_Launch", new System.Type[] { typeof(UnityEngine.Transform), typeof(float) })]
     [HarmonyLib.HarmonyPostfix]
-    private static void OnRestartPlayer(UnityEngine.Transform spawnPoint, float minVel = 0f) { if (Manager.IsRun) Main.Randomize(); }
+    private static void OnRestartPlayer(UnityEngine.Transform spawnPoint, float minVel = 0f) { if (Manager.IsRun) Main.Randomize(); UnityEngine.Debug.Log("Called RestartPlayer_Launch"); }
+
+    [HarmonyLib.HarmonyPatch(typeof(PlayerCharacter), "RestartPlayer_Still", new System.Type[] { typeof(UnityEngine.Transform) })]
+    [HarmonyLib.HarmonyPostfix]
+    private static void OnRestartPlayer(UnityEngine.Transform spawnPoint) { if (Manager.IsRun) Main.Randomize(); UnityEngine.Debug.Log("Called RestartPlayer_Still"); }
+
+    [HarmonyLib.HarmonyPatch(typeof(PlayerCharacter), "RestartPlayerWithAnim", new System.Type[] { typeof(UnityEngine.Transform), typeof(int) })]
+    [HarmonyLib.HarmonyPostfix]
+    private static void OnRestartPlayer(UnityEngine.Transform spawnPoint, int animId = 1) { if (Manager.IsRun) Main.Randomize(); UnityEngine.Debug.Log("Called RestartPlayerWithAnim"); }
 
     [HarmonyLib.HarmonyPatch(typeof(HasteSettingsHandler), "RegisterPage")]
     [HarmonyLib.HarmonyPrefix]
